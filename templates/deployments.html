@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudOps Enterprise Platform</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<h1>☁️ CloudOps Enterprise Platform</h1>
+
+<h2>Add New Deployment</h2>
+
+<form action="/add-deployment" method="POST">
+
+    <label><strong>Project Name</strong></label>
+    <input type="text" name="project_name" placeholder="Enter project name" required>
+
+    <label><strong>Environment</strong></label>
+    <input type="text" name="environment" placeholder="AWS EC2 / Docker / Kubernetes" required>
+
+    <label><strong>Status</strong></label>
+    <input type="text" name="status" placeholder="Running / Completed / Failed" required>
+
+    <button type="submit">➕ Add Deployment</button>
+
+</form>
+
+<h2>Deployment Records</h2>
+
+<table>
+
+<tr>
+    <th>ID</th>
+    <th>Project Name</th>
+    <th>Environment</th>
+    <th>Status</th>
+    <th>Created At</th>
+    <th>Update Status</th>
+    <th>Delete</th>
+</tr>
+
+{% for deployment in deployments %}
+
+<tr>
+
+<td>{{ deployment[0] }}</td>
+<td>{{ deployment[1] }}</td>
+<td>{{ deployment[2] }}</td>
+<td>{{ deployment[3] }}</td>
+<td>{{ deployment[4] }}</td>
+
+<td>
+    <form action="/update-status/{{ deployment[0] }}" method="POST">
+        <input type="text" name="status" value="{{ deployment[3] }}" required>
+        <button type="submit">Update</button>
+    </form>
+</td>
+
+<td>
+    <a href="/delete-deployment/{{ deployment[0] }}">🗑 Delete</a>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>
