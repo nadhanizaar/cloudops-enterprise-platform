@@ -3,71 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudOps Enterprise Platform</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>CloudOps Deployments</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<h1>☁️ CloudOps Enterprise Platform</h1>
+    <div class="container">
 
-<h2>Add New Deployment</h2>
+        <h1>CloudOps Deployment Dashboard</h1>
 
-<form action="/add-deployment" method="POST">
+        <!-- Add Deployment -->
+        <div class="card">
+            <h2>Add New Deployment</h2>
 
-    <label><strong>Project Name</strong></label>
-    <input type="text" name="project_name" placeholder="Enter project name" required>
+            <form action="/add-deployment" method="POST">
 
-    <label><strong>Environment</strong></label>
-    <input type="text" name="environment" placeholder="AWS EC2 / Docker / Kubernetes" required>
+                <label>Project Name</label>
+                <input
+                    type="text"
+                    name="project_name"
+                    placeholder="Enter project name"
+                    required
+                >
 
-    <label><strong>Status</strong></label>
-    <input type="text" name="status" placeholder="Running / Completed / Failed" required>
+                <label>Environment</label>
+                <input
+                    type="text"
+                    name="environment"
+                    placeholder="AWS EC2 / Docker / Kubernetes"
+                    required
+                >
 
-    <button type="submit">➕ Add Deployment</button>
+                <label>Status</label>
+                <select name="status" required>
+                    <option value="Running">Running</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Failed">Failed</option>
+                </select>
 
-</form>
+                <button type="submit">➕ Add Deployment</button>
 
-<h2>Deployment Records</h2>
+            </form>
+        </div>
 
-<table>
+        <!-- Deployment Records -->
+        <div class="card">
 
-<tr>
-    <th>ID</th>
-    <th>Project Name</th>
-    <th>Environment</th>
-    <th>Status</th>
-    <th>Created At</th>
-    <th>Update Status</th>
-    <th>Delete</th>
-</tr>
+            <h2>Deployment Records</h2>
 
-{% for deployment in deployments %}
+            {% if deployments %}
 
-<tr>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Project Name</th>
+                        <th>Environment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-<td>{{ deployment[0] }}</td>
-<td>{{ deployment[1] }}</td>
-<td>{{ deployment[2] }}</td>
-<td>{{ deployment[3] }}</td>
-<td>{{ deployment[4] }}</td>
+                <tbody>
 
-<td>
-    <form action="/update-status/{{ deployment[0] }}" method="POST">
-        <input type="text" name="status" value="{{ deployment[3] }}" required>
-        <button type="submit">Update</button>
-    </form>
-</td>
+                    {% for deployment in deployments %}
 
-<td>
-    <a href="/delete-deployment/{{ deployment[0] }}">🗑 Delete</a>
-</td>
+                    <tr>
+                        <td>{{ deployment[0] }}</td>
+                        <td>{{ deployment[1] }}</td>
+                        <td>{{ deployment[2] }}</td>
+                        <td>{{ deployment[3] }}</td>
 
-</tr>
+                        <td>
 
-{% endfor %}
+                            <!-- View -->
+                            <a href="/deployments/{{ deployment[0] }}">
+                                <button type="button">View</button>
+                            </a>
 
-</table>
+                            <!-- Edit Status -->
+                            <form
+                                action="/update-status/{{ deployment[0] }}"
+                                method="POST"
+                                style="display:inline;"
+                            >
+                                <select name="status">
+                                    <option value="Running">Running</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Failed">Failed</option>
+                                </select>
+
+                                <button type="submit">Edit</button>
+                            </form>
+
+                            <!-- Delete -->
+                            <a
+                                href="/delete-deployment/{{ deployment[0] }}"
+                                onclick="return confirm('Are you sure you want to delete this deployment?');"
+                            >
+                                <button type="button">Delete</button>
+                            </a>
+
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            {% else %}
+
+            <p>No deployments found.</p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
 
 </body>
 </html>

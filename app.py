@@ -12,6 +12,7 @@ db = pymysql.connect(
 )
 
 
+# Home page
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -23,15 +24,18 @@ def db_test():
     cursor = db.cursor()
     cursor.execute("SELECT DATABASE();")
     result = cursor.fetchone()
+    cursor.close()
+
     return f"Connected to database: {result[0]}"
 
 
-# Display deployment records
+# Display all deployments
 @app.route("/deployments")
 def deployments():
     cursor = db.cursor()
     cursor.execute("SELECT * FROM deployments")
     deployments_data = cursor.fetchall()
+    cursor.close()
 
     return render_template(
         "deployments.html",
@@ -39,10 +43,35 @@ def deployments():
     )
 
 
+# View a single deployment
+@app.route("/deployments/<int:id>")
+def view_deployment(id):
+    cursor = db.cursor()
+    cursor.execute(
+        "SELECT * FROM deployments WHERE id=%s",
+        (id,)
+    )
+
+    deployment = cursor.fetchone()
+    cursor.close()
+
+    if deployment is None:
+        return "Deployment not found", 404
+
+    return f"""
+    <h1>Deployment Details</h1>
+    <p><strong>ID:</strong> {deployment[0]}</p>
+    <p><strong>Project Name:</strong> {deployment[1]}</p>
+    <p><strong>Environment:</strong> {deployment[2]}</p>
+    <p><strong>Status:</strong> {deployment[3]}</p>
+    <br>
+    <a href="/deployments">← Back to Deployments</a>
+    """
+
+
 # Add new deployment
 @app.route("/add-deployment", methods=["POST"])
 def add_deployment():
-
     project_name = request.form["project_name"]
     environment = request.form["environment"]
     status = request.form["status"]
@@ -59,6 +88,7 @@ def add_deployment():
     )
 
     db.commit()
+    cursor.close()
 
     return redirect("/deployments")
 
@@ -66,7 +96,6 @@ def add_deployment():
 # Delete deployment
 @app.route("/delete-deployment/<int:id>")
 def delete_deployment(id):
-
     cursor = db.cursor()
 
     cursor.execute(
@@ -75,13 +104,14 @@ def delete_deployment(id):
     )
 
     db.commit()
+    cursor.close()
 
     return redirect("/deployments")
 
 
+# Update deployment status
 @app.route("/update-status/<int:id>", methods=["POST"])
 def update_status(id):
-
     new_status = request.form["status"]
 
     cursor = db.cursor()
@@ -92,6 +122,7 @@ def update_status(id):
     )
 
     db.commit()
+    cursor.close()
 
     return redirect("/deployments")
 
