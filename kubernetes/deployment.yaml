@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudops-deployment
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: cloudops
+
+  template:
+    metadata:
+      labels:
+        app: cloudops
+
+    spec:
+      containers:
+      - name: cloudops-container
+        image: cloudops-enterprise-platform:latest
+
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 8000
